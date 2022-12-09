@@ -26,9 +26,8 @@ peticionAjax = function(mehod, url, objectSend, async){
 	if (http.status == 200 || http.status == "") {
 		responseAsText = http.responseText;
 		return responseAsText;
-	}else{
-		return "";
 	}
+	return "";
 }
 function initializeDataModel() {
 	datamodel = JSON.parse(peticionAjax("GET", "data/all/"+id_user+"/"+id_sco, null, false).split(SEPARADOR_HD));
@@ -49,7 +48,7 @@ function getValue(label) {
 		value = findElement("scorm_12", paramBase);
 	}
     if (value == null) {
-        value = "";
+        return "";
     }
 	return value;
 }
@@ -62,24 +61,21 @@ function findElement(propName, propValue) {
 	return null;
 }
 function replaceElement(propName, propValue, dataValue) {
-	var exist = false;
-	for (var i=0; i < datamodel.length; i++) {
-		if (datamodel[i][propName] == propValue) {
-			datamodel[i]["valueObjet"] = dataValue;
-			exist = true;
-		}
-	}
-	if (!exist) {
-		var paramBase = propValue.replace(new RegExp(".(\\d+).", "g"), ".n.");
-		var elementBase = findElement(propName, paramBase);
-		if (elementBase != null) {
-			elementBase["scorm_12"] = propValue;
-			elementBase["scorm_2004_3ra"] = propValue;
-			elementBase["valueObjet"] = dataValue;
+    for (var i = 0; i < datamodel.length; i++) {
+        if (datamodel[i][propName] == propValue) {
+            datamodel[i]["valueObjet"] = dataValue;
+            return;
+        }
+    }
+    var paramBase = propValue.replace(new RegExp(".(\\d+).", "g"), ".n.");
+    var elementBase = findElement(propName, paramBase);
+    if (elementBase != null) {
+        elementBase["scorm_12"] = propValue;
+        elementBase["scorm_2004_3ra"] = propValue;
+        elementBase["valueObjet"] = dataValue;
 
-			datamodel.push(elementBase);
-		}
-	}
+        datamodel.push(elementBase);
+    }
 }
 function validateValueScorm(value, regex) {
     expression = new RegExp(regex);
@@ -87,21 +83,18 @@ function validateValueScorm(value, regex) {
     matches = value.match(expression);
     if (matches != null) {
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 function validateSizeScorm(value, range) {
-    if (range != "") {
-        ranges = range.split('#');
-        value = value * 1.0;
-        if ((value >= ranges[0]) && (value <= ranges[1])) {
-            return true;
-        } else {
-            return false;
-        }
-    } else {
+    if (range == "") {
         return true;
     }
+    ranges = range.split('#');
+    value = value * 1.0;
+    if ((value >= ranges[0]) && (value <= ranges[1])) {
+        return true;
+    }
+    return false;
 }
