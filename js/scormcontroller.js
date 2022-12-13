@@ -47,8 +47,8 @@ function getValue(label) {
 		var paramBase = label.replace(new RegExp(".(\\d+).", "g"), ".n.");
 		value = findElement("scorm_12", paramBase);
 	}
-    if (value == null) {
-        return "";
+    if (value != null && value["valueObjet"] == null) {
+        value["valueObjet"] = "";
     }
 	return value;
 }
