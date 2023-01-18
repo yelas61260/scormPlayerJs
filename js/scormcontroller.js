@@ -8,6 +8,9 @@ var Initialized = false;
 var Terminated = false;
 var errorCode = "0";
 
+var syncDataScorm = null;
+var syncSeconds = 30;
+
 $( document ).ready(function() {
 	id_scorm = $("#id_scorm").html();
 	id_sco = $("#id_sco").html();
@@ -15,10 +18,9 @@ $( document ).ready(function() {
 	param_ruta = $("#apiPlayerService").html();
 });
 var api_result = new Array('','0');
-var SEPARADOR_HD = "|HD_PLATFORM|";
-peticionAjax = function(mehod, url, objectSend, async){
+peticionAjax = function(mehod, url, objectSend){
 	var http = new XMLHttpRequest();
-	http.open(""+mehod, param_ruta+url+"", async);
+	http.open(""+mehod, param_ruta+url+"");
 	http.setRequestHeader("Content-Type", "application/json");
 	http.onreadystatechange = function() {}
 	http.send(JSON.stringify(objectSend));
@@ -30,14 +32,25 @@ peticionAjax = function(mehod, url, objectSend, async){
 	return "";
 }
 function initializeDataModel() {
-	datamodel = JSON.parse(peticionAjax("GET", "data/all/"+id_user+"/"+id_sco, null, false).split(SEPARADOR_HD));
+	datamodel = JSON.parse(peticionAjax("GET", "data/all/"+id_user+"/"+id_sco, null));
+    syncDataScorm = setInterval(syncScorm, syncSeconds*1000)
 	return true;
 }
 function terminateDataModel() {
+    clearInterval(syncDataScorm);
+    syncScorm();
 	return true;
 }
+function syncScorm() {
+    console.log("send data")
+    response = peticionAjax("POST", "data/all/"+id_user+"/"+id_sco+"/save", datamodel);
+    console.log(response)
+    if (response === null || response === "") {
+        Terminated = true;
+        Initialized = false;
+    }
+}
 function setValue(label, value) {
-	peticionAjax("PUT", "setvalue/"+id_scorm+"/"+id_sco+"/"+id_user, {label:label,value:value}, true).split(SEPARADOR_HD);
 	replaceElement("scorm_12", label, value);
 	return getValue(label);
 }

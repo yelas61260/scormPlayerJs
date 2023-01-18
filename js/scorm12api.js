@@ -9,25 +9,25 @@ APIAdapter12.LMSCommit = function(arg1) {
 	api_result[1] = '301';
 	return 'false';
 };
-APIAdapter12.LMSGetDiagnostic = function(arg1) {
-	return peticionAjax("GET", "getdiagnostic/"+arg1, null, false);
+APIAdapter12.LMSGetDiagnostic = function(code) {
+	return peticionAjax("GET", "getdiagnostic/"+code, null, false);
 };
-APIAdapter12.LMSGetErrorString = function(arg1) {
-	return peticionAjax("GET", "geterrorstring/"+arg1, null, false);
+APIAdapter12.LMSGetErrorString = function(code) {
+	return peticionAjax("GET", "geterrorstring/"+code, null, false);
 };
 APIAdapter12.LMSGetLastError = function() {
 	return api_result[1];
 };
-APIAdapter12.LMSGetValue = function(arg1) {
+APIAdapter12.LMSGetValue = function(label) {
 	if(!Initialized){
 		api_result[1] = '301';
 		return '';
 	}
-    if (arg1 == "") {
+    if (label == "") {
         api_result[1] = '201';
         return '';
     }
-    var scormObject = getValue(arg1);
+    var scormObject = getValue(label);
     if (scormObject == null) {
         api_result[1] = '201';
         return '';
@@ -40,16 +40,16 @@ APIAdapter12.LMSGetValue = function(arg1) {
     api_result[1] = "0";
     return scormObject["valueObjet"];
 };
-APIAdapter12.LMSSetValue = function (arg1, arg2) {
+APIAdapter12.LMSSetValue = function (label, value) {
     if (!Initialized) {
         api_result[1] = '301';
         return 'false';
     }
-    if (arg1 == "") {
+    if (label == "") {
         api_result[1] = '201';
         return 'false';
     }
-    var scormObject = getValue(arg1);
+    var scormObject = getValue(label);
     if (scormObject == null) {
         api_result[1] = '201';
         return '';
@@ -58,18 +58,18 @@ APIAdapter12.LMSSetValue = function (arg1, arg2) {
         api_result[1] = '405';
         return '';
     }
-    if (!validateValueScorm(arg2, window[scormObject["type_data_12"]])) {
+    if (!validateValueScorm(value, window[scormObject["type_data_12"]])) {
         api_result[1] = '405';
         return '';
     }
-    if (!validateSizeScorm(arg2, scormObject["range_data_12"])) {
+    if (!validateSizeScorm(value, scormObject["range_data_12"])) {
         api_result[1] = '405';
         return '';
     }
 
-    scormObject = setValue(arg1, arg2);
+    scormObject = setValue(label, value);
     api_result[1] = "0";
-    if (arg1 == "cmi.core.lesson_status" && (arg2 == "completed" || arg2 == "passed")) {
+    if (label == "cmi.core.lesson_status" && (value == "completed" || value == "passed")) {
         completeLessonLMS();
     }
     return scormObject["valueObjet"];
